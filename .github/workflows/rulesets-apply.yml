@@ -27,10 +27,10 @@ jobs:
         run: |
           set -euo pipefail
           owner=gr1m0h
-          # repos.yaml を JSON に変換
+          # convert repos.yaml to JSON
           yq -o=json repos.yaml > /tmp/repos.json
           defaults=$(jq -r '.defaults.apply[]' /tmp/repos.json)
-          # 対象 repo を列挙 (public only)
+          # enumerate target repos (public only)
           gh repo list "$owner" --limit 200 --json name,visibility,isArchived \
             --jq '.[] | select(.visibility=="PUBLIC" and .isArchived==false) | .name' \
           | while read repo; do
