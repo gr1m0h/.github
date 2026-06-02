@@ -1,0 +1,21 @@
+name: osv-scanner
+
+on:
+  workflow_call:
+    inputs:
+      scan-args:
+        description: Extra arguments forwarded to osv-scanner
+        type: string
+        default: "--recursive ./"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  osv-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google/osv-scanner-action/osv-scanner-action@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
+        with:
+          scan-args: ${{ inputs.scan-args }}
