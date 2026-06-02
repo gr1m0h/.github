@@ -1,0 +1,58 @@
+name: rulesets-apply
+on:
+  push:
+    branches: [main]
+    paths:
+      - "rulesets/*.json"
+      - "repos.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@<SHA-of-v4>
+      - id: app-token
+        uses: actions/create-github-app-token@<SHA-of-v2>
+        with:
+          app-id: ${{ vars.BASELINE_APP_ID }}
+          private-key: ${{ secrets.BASELINE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+      - name: apply rulesets to all repos
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          owner=gr1m0h
+          # repos.yaml を JSON に変換
+          yq -o=json repos.yaml > /tmp/repos.json
+          defaults=$(jq -r '.defaults.apply[]' /tmp/repos.json)
+          # 対象 repo を列挙 (public only)
+          gh repo list "$owner" --limit 200 --json name,visibility,isArchived \
+            --jq '.[] | select(.visibility=="PUBLIC" and .isArchived==false) | .name' \
+          | while read repo; do
+              # exclude
+              if jq -e --arg r "$repo" '.exclude[]? | select(.==$r)' /tmp/repos.json >/dev/null; then
+                echo "skip   $repo (excluded)"; continue
+              fi
+              # override or defaults
+              applies=$(jq -r --arg r "$repo" \
+                '.overrides[$r].apply // .defaults.apply | .[]' /tmp/repos.json)
+              for rs in $applies; do
+                name=$(jq -r '.name' "rulesets/$rs.json")
+                existing=$(gh api "/repos/$owner/$repo/rulesets" \
+                  --jq ".[] | select(.name==\"$name\") | .id" 2>/dev/null)
+                if [ -n "$existing" ]; then
+                  gh api -X PUT "/repos/$owner/$repo/rulesets/$existing" \
+                    --input "rulesets/$rs.json" --silent
+                  echo "update $repo  $name"
+                else
+                  gh api -X POST "/repos/$owner/$repo/rulesets" \
+                    --input "rulesets/$rs.json" --silent
+                  echo "create $repo  $name"
+                fi
+              done
+            done

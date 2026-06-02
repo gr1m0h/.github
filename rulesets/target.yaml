@@ -1,0 +1,13 @@
+defaults:
+  apply:
+    - main-protection
+exclude:
+  - gr1m0h
+  - hatenablog-contents
+overrides:
+  vimpin:
+    apply: [main-protection, tag-protection]
+  vimpin-action:
+    apply: [main-protection, tag-protection]
+  vimpin-renovate-config:
+    apply: [main-protection, tag-protection]
