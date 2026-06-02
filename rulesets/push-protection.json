@@ -1,0 +1,34 @@
+{
+  "name": "push-protection",
+  "target": "push",
+  "enforcement": "active",
+  "conditions": {
+    "repository_name": {
+      "include": ["~ALL"]
+    }
+  },
+  "rules": [
+    {
+      "type": "file_path_restriction",
+      "parameters": {
+        "restricted_file_paths": [
+          ".env",
+          ".env.*",
+          "*.pem",
+          "*.key",
+          "**/id_rsa",
+          "**/id_ed25519",
+          "**/credentials.json",
+          "**/service-account*.json"
+        ]
+      }
+    },
+    {
+      "type": "max_file_size",
+      "parameters": {
+        "max_file_size": 50
+      }
+    }
+  ],
+  "bypass_actors": []
+}
