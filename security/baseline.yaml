@@ -1,0 +1,56 @@
+# 対象 repo の宣言
+scope:
+  visibility: public # public | private | all
+  archived: false
+  forks: false
+
+defaults:
+  # ruleset
+  rulesets:
+    - main-protection
+  # repo settings
+  repo_settings:
+    private_vulnerability_reporting: true
+    vulnerability_alerts: true
+    secret_scanning: enabled
+    secret_scanning_push_protection: enabled
+    dependabot_security_updates: enabled
+  # target repo に PR で配置する file
+  files:
+    - { src: templates/dependabot.yml, dst: .github/dependabot.yml }
+    - { src: templates/CODEOWNERS, dst: CODEOWNERS, create_only: true }
+  # caller workflow (言語別に template を選択)
+  caller_workflow:
+    src: templates/caller-security-multi.yml
+    dst: .github/workflows/security.yml
+
+# 言語別追加
+language_overrides:
+  Go:
+    caller_workflow:
+      src: templates/caller-security-go.yml
+  TypeScript:
+    caller_workflow:
+      src: templates/caller-security-node.yml
+  JavaScript:
+    caller_workflow:
+      src: templates/caller-security-node.yml
+
+# scope で拾われた中で、 baseline を当てない repo
+exclude:
+  - gr1m0h
+  - hatenablog-contents
+
+# repo 固有 (defaults → language → override の merge 順)
+repo_overrides:
+  vimpin:
+    rulesets: [main-protection, tag-protection]
+    files_add:
+      - {
+          src: templates/cosign-release.yml,
+          dst: .github/workflows/cosign-release.yml,
+        }
+  vimpin-action:
+    rulesets: [main-protection, tag-protection]
+  vimpin-renovate-config:
+    rulesets: [main-protection, tag-protection]
