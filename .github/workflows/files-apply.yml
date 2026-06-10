@@ -39,11 +39,21 @@ jobs:
       - name: render and PR files into target repos
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
           UPSTREAM_REF: ${{ github.sha }}
         run: |
           set -euo pipefail
           owner=gr1m0h
           workdir=$(pwd)
+
+          # Resolve the bot identity of the App that minted GH_TOKEN so
+          # commits are authored as "<slug>[bot]" with the App bot's
+          # numeric id baked into a stable noreply email. Without this we
+          # would fall back to a hardcoded name that collides with whoever
+          # happens to own that username on github.com.
+          bot_name="${APP_SLUG}[bot]"
+          bot_id=$(gh api "/users/${bot_name}" --jq '.id')
+          bot_email="${bot_id}+${bot_name}@users.noreply.github.com"
 
           yq -o=json security/baseline.yaml > /tmp/baseline.json
 
@@ -124,8 +134,8 @@ jobs:
                 echo "noop   $repo"; exit 0
               fi
 
-              git config user.email "baseline-bot@users.noreply.github.com"
-              git config user.name  "baseline-bot"
+              git config user.email "$bot_email"
+              git config user.name  "$bot_name"
               git add -A
               git commit -m "chore: sync baseline files from gr1m0h/.github@${UPSTREAM_REF:0:7}"
               git push -f origin "$branch" >/dev/null 2>&1
