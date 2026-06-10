@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.1.5](https://github.com/gr1m0h/.github/compare/v1.1.4...v1.1.5) - 2026-06-10
+
+- refactor(files-apply): accumulate commits on chore/baseline-sync instead of force-pushing by @gr1m0h in https://github.com/gr1m0h/.github/pull/15
+
 ## [v1.1.4](https://github.com/gr1m0h/.github/compare/v1.1.3...v1.1.4) - 2026-06-10
 
 - chore(baseline): add Shell/HCL templates and expand files-apply allowlist by @gr1m0h in https://github.com/gr1m0h/.github/pull/13
