@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.1.4](https://github.com/gr1m0h/.github/compare/v1.1.3...v1.1.4) - 2026-06-10
+
+- chore(baseline): add Shell/HCL templates and expand files-apply allowlist by @gr1m0h in https://github.com/gr1m0h/.github/pull/13
+
 ## [v1.1.3](https://github.com/gr1m0h/.github/compare/v1.1.2...v1.1.3) - 2026-06-10
 
 - fix(templates): rename caller job IDs to match required status contexts by @gr1m0h in https://github.com/gr1m0h/.github/pull/10
