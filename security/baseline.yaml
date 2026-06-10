@@ -15,9 +15,29 @@ scope:
   forks: false                # include forks
 
 # Repos that match `scope` but should be skipped entirely.
+# Applied to BOTH rulesets-apply and files-apply (hard never-touch list).
 exclude:
   - gr1m0h                    # profile README repo
   - hatenablog-contents       # content-only, no CI
+
+# -----------------------------------------------------------------------------
+# files-apply narrower scope (subset of rulesets coverage).
+#
+# Rulesets are cheap and uniformly safe to apply, so they target every repo
+# matched by `scope`. Files (reusable security workflow callers) require the
+# repo to actually run CI, so we maintain an explicit allowlist here.
+#
+# Semantics:
+#   - If `files_apply.repos` is defined, files-apply targets ONLY those repos.
+#   - If absent, files-apply falls back to the global `scope` enumeration
+#     (same behavior as rulesets-apply).
+#   - Top-level `exclude` is honored regardless.
+# -----------------------------------------------------------------------------
+files_apply:
+  repos:
+    - vimpin
+    - vimpin-action
+    - vimpin-renovate-config
 
 # -----------------------------------------------------------------------------
 # Defaults — applied to every covered repo unless overridden below.

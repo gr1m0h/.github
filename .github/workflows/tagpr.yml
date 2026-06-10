@@ -1,0 +1,26 @@
+name: tagpr
+# Maintains a release PR on every push to main. Merging the PR cuts the next
+# semver tag automatically. Bump kind is controlled by labels on merged PRs:
+#   tagpr:minor / tagpr:major (default: patch).
+#
+# No floating major tag (v1) is maintained: consumers must pin to a concrete
+# tag (vX.Y.Z) or a commit SHA. No GitHub Release is created.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  tagpr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: Songmu/tagpr@e84001bd5dac8defa0c75b3913937d284a3b3660 # v1.20.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

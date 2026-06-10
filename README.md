@@ -89,7 +89,14 @@ All reusable workflows pin third-party actions to commit SHAs and emit the
 
 `files-apply.yml` runs on every push to `main` that touches
 `security/baseline.yaml` or `templates/**`, and can also be triggered manually
-via `workflow_dispatch`. For each covered repo it:
+via `workflow_dispatch`. Target selection is **intentionally narrower** than
+`rulesets-apply.yml`:
+
+1. If `files_apply.repos` is defined in `baseline.yaml`, only those repos are covered (preferred)
+2. Else if top-level `repos:` is defined, that list is used
+3. Else falls back to scope-based enumeration
+
+Top-level `exclude:` is always honored. For each covered repo it:
 
 1. Detects the primary language via the GitHub API
 2. Resolves the effective file list from `defaults.files` + `repo_overrides`,
@@ -194,20 +201,44 @@ the target repo). To roll out Dependabot, copy the file into each target repo.
 
 ## 4. Releasing a new version
 
-Consumers pin to tags, so cutting a release is how changes propagate.
+Consumers pin to tags (or commit SHAs), so cutting a release is how changes
+propagate. Releases are **fully automated by [tagpr](https://github.com/Songmu/tagpr)**
+(`.github/workflows/tagpr.yml`).
+
+### How it works
+
+1. Every push to `main` triggers `tagpr.yml`
+2. tagpr maintains a single open **release PR** (e.g. `Release for v1.2.0`)
+   containing the proposed next version + accumulated changelog
+3. Merging that PR causes tagpr to **automatically push the corresponding tag**
+   (e.g. `v1.2.0`) to `origin`
+4. Renovate / Dependabot then bumps `uses:` references in downstream callers
+
+### Controlling the bump kind
+
+Default bump is **patch**. To change it, add a label to a merged PR (or to the
+release PR itself) before merging:
+
+| Label | Effect |
+|-------|--------|
+| `tagpr:patch` (default) | v1.1.0 → v1.1.1 |
+| `tagpr:minor` | v1.1.0 → v1.2.0 |
+| `tagpr:major` | v1.1.0 → v2.0.0 |
+
+### Manual fallback
+
+If tagpr is unavailable (e.g. App outage), cut a tag manually:
 
 ```bash
-# from main, after the change is merged
-git tag -a v1.1.0 -m "v1.1.0: <summary>"
-git push origin v1.1.0
-
-# also move the floating major tag if you maintain one
-git tag -f v1
-git push -f origin v1
+git tag -a v1.2.0 -m "v1.2.0: <summary>"
+git push origin v1.2.0
 ```
 
-Then bump callers (Renovate handles this for repos with the `github-actions`
-manager enabled).
+### Pinning policy
+
+**No floating major tag (`v1`) is maintained.** Consumers must pin to either
+a concrete release tag (`@v1.2.0`) or a commit SHA. This keeps Renovate's
+update graph deterministic and avoids silent breakage on tag movement.
 
 ---
 

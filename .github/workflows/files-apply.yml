@@ -47,12 +47,19 @@ jobs:
 
           yq -o=json security/baseline.yaml > /tmp/baseline.json
 
-          # ----- enumerate target repos (mirrors rulesets-apply.yml) -----
+          # ----- enumerate target repos -----
+          # files-apply uses a narrower allowlist than rulesets-apply:
+          #   1. `files_apply.repos` (explicit allowlist) — preferred
+          #   2. top-level `repos`                         — opt-in list shared with rulesets-apply
+          #   3. `scope`-based enumeration                 — fallback
+          # The top-level `exclude` is always honored (checked per-repo below).
           scope_vis=$(jq  -r '.scope.visibility // "public"' /tmp/baseline.json)
           scope_arc=$(jq  -r '.scope.archived   // false'    /tmp/baseline.json)
           scope_fork=$(jq -r '.scope.forks      // false'    /tmp/baseline.json)
 
-          if jq -e '.repos' /tmp/baseline.json >/dev/null; then
+          if jq -e '.files_apply.repos' /tmp/baseline.json >/dev/null; then
+            targets=$(jq -r '.files_apply.repos[]' /tmp/baseline.json)
+          elif jq -e '.repos' /tmp/baseline.json >/dev/null; then
             targets=$(jq -r '.repos[]' /tmp/baseline.json)
           else
             jq_filter=".[] | select(.isArchived==$scope_arc) | select(.isFork==$scope_fork)"
