@@ -1,8 +1,10 @@
 name: files-apply
 # Renders the templates declared in security/baseline.yaml and opens (or
 # updates) a PR in every target repo. Each repo uses a fixed sync branch
-# `chore/baseline-sync`, so re-runs force-push the same branch and refresh the
-# existing PR rather than opening a new one.
+# `chore/baseline-sync`. Re-runs check out that branch (or create it from
+# the default branch on first run) and append a new commit when the
+# rendered output drifts, so any manual fixes already pushed onto the PR
+# are preserved instead of being clobbered by a force-push.
 #
 # Required permissions on the GitHub App's target installations:
 #   contents:        write   (push branches)
@@ -107,6 +109,11 @@ jobs:
               fi
 
               # Clone target and prepare the sync branch.
+              #
+              # We accumulate commits on `chore/baseline-sync` rather than
+              # force-pushing, so manual fixes pushed onto the open PR
+              # (e.g. a Go toolchain bump applied alongside the synced
+              # workflow) survive subsequent baseline rebuilds.
               tmpdir=$(mktemp -d)
               git clone --depth 1 \
                 "https://x-access-token:${GH_TOKEN}@github.com/${owner}/${repo}.git" \
@@ -114,7 +121,19 @@ jobs:
               cd "$tmpdir"
               default_branch=$(git symbolic-ref --short HEAD)
               branch="chore/baseline-sync"
-              git checkout -B "$branch"
+
+              # If the sync branch already exists upstream, check it out as
+              # the working ref so new commits stack on top of whatever the
+              # PR currently has. Otherwise start fresh from the default
+              # branch.
+              if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+                git fetch --depth 1 origin \
+                  "+refs/heads/${branch}:refs/remotes/origin/${branch}" \
+                  >/dev/null 2>&1
+                git checkout -B "$branch" "refs/remotes/origin/${branch}"
+              else
+                git checkout -B "$branch"
+              fi
 
               # Render each template, substituting @<tag> with the upstream commit.
               while IFS= read -r entry; do
@@ -138,7 +157,7 @@ jobs:
               git config user.name  "$bot_name"
               git add -A
               git commit -m "chore: sync baseline files from gr1m0h/.github@${UPSTREAM_REF:0:7}"
-              git push -f origin "$branch" >/dev/null 2>&1
+              git push origin "$branch" >/dev/null 2>&1
 
               # Open the PR if it does not already exist; otherwise the force-push
               # has already refreshed the existing one.
@@ -148,7 +167,7 @@ jobs:
                 gh pr create --repo "$owner/$repo" \
                   --base "$default_branch" --head "$branch" \
                   --title "chore: sync baseline files from gr1m0h/.github" \
-                  --body "Synced from gr1m0h/.github@${UPSTREAM_REF}. This PR is opened automatically by files-apply.yml; each upstream change force-pushes onto this branch, so review the latest diff before merging."
+                  --body "Synced from gr1m0h/.github@${UPSTREAM_REF}. This PR is opened automatically by files-apply.yml; each upstream change appends a new commit to this branch (no force-push), so review the latest commit(s) before merging."
                 echo "create $repo"
               else
                 echo "update $repo  $pr_url"
