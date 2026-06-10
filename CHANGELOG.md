@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.1.2](https://github.com/gr1m0h/.github/compare/v1.1.1...v1.1.2) - 2026-06-10
+
+- fix(workflows): pin govulncheck to v1.1.4 SHA and replace actionlint placeholder by @gr1m0h in https://github.com/gr1m0h/.github/pull/8
+
 ## [v1.1.1](https://github.com/gr1m0h/.github/compare/v1.1.0...v1.1.1) - 2026-06-10
 
 - docs: rewrite README in Japanese and condense by @gr1m0h in https://github.com/gr1m0h/.github/pull/6
