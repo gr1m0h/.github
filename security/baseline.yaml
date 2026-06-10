@@ -35,6 +35,14 @@ exclude:
 # -----------------------------------------------------------------------------
 files_apply:
   repos:
+    - asdf-act
+    - asdf-k6
+    - asdf-soracom
+    - asdf-starship
+    - asdf-terraformer
+    - asdf-vegeta
+    - k6-ec2
+    - terraform-aws-cloudwatch-dashboard-for-loadtesting
     - vimpin
     - vimpin-action
     - vimpin-renovate-config
@@ -61,6 +69,12 @@ defaults:
     - src: templates/caller-node.yml.template
       dst: .github/workflows/security.yml
       languages: [TypeScript, JavaScript]
+    - src: templates/caller-shell.yml.template
+      dst: .github/workflows/security.yml
+      languages: [Shell]
+    - src: templates/caller-hcl.yml.template
+      dst: .github/workflows/security.yml
+      languages: [HCL]
 
 # -----------------------------------------------------------------------------
 # Per-repo overrides — merged on top of `defaults`.
