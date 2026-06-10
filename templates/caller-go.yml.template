@@ -9,7 +9,7 @@ permissions:
 jobs:
   govulncheck:
     uses: gr1m0h/.github/.github/workflows/govulncheck.yml@<tag>
-  osv-scanner:
+  osv-scan:
     uses: gr1m0h/.github/.github/workflows/osv-scanner.yml@<tag>
     permissions:
       contents: read
@@ -28,5 +28,5 @@ jobs:
       contents: read
       security-events: write
       actions: read
-  actions-pin-lint:
+  actionlint:
     uses: gr1m0h/.github/.github/workflows/actions-pin-lint.yml@<tag>
