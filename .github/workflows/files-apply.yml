@@ -1,0 +1,140 @@
+name: files-apply
+# Renders the templates declared in security/baseline.yaml and opens (or
+# updates) a PR in every target repo. Each repo uses a fixed sync branch
+# `chore/baseline-sync`, so re-runs force-push the same branch and refresh the
+# existing PR rather than opening a new one.
+#
+# Required permissions on the GitHub App's target installations:
+#   contents:        write   (push branches)
+#   pull-requests:   write   (open PRs)
+#   workflows:       write   (modify .github/workflows/*)
+#   metadata:        read
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "security/baseline.yaml"
+      - "templates/**"
+      - ".github/workflows/files-apply.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    # Restrict manual dispatch to the repo owner; push events are already
+    # gated by who can merge to main.
+    if: github.event_name != 'workflow_dispatch' || github.triggering_actor == 'gr1m0h'
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.BASELINE_APP_ID }}
+          private-key: ${{ secrets.BASELINE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+      - name: render and PR files into target repos
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          UPSTREAM_REF: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          owner=gr1m0h
+          workdir=$(pwd)
+
+          yq -o=json security/baseline.yaml > /tmp/baseline.json
+
+          # ----- enumerate target repos (mirrors rulesets-apply.yml) -----
+          scope_vis=$(jq  -r '.scope.visibility // "public"' /tmp/baseline.json)
+          scope_arc=$(jq  -r '.scope.archived   // false'    /tmp/baseline.json)
+          scope_fork=$(jq -r '.scope.forks      // false'    /tmp/baseline.json)
+
+          if jq -e '.repos' /tmp/baseline.json >/dev/null; then
+            targets=$(jq -r '.repos[]' /tmp/baseline.json)
+          else
+            jq_filter=".[] | select(.isArchived==$scope_arc) | select(.isFork==$scope_fork)"
+            [ "$scope_vis" = "public" ]  && jq_filter+=" | select(.visibility==\"PUBLIC\")"
+            [ "$scope_vis" = "private" ] && jq_filter+=" | select(.visibility==\"PRIVATE\")"
+            targets=$(gh repo list "$owner" --limit 200 \
+              --json name,visibility,isArchived,isFork \
+              --jq "$jq_filter | .name")
+          fi
+
+          for repo in $targets; do
+            (
+              set -e
+
+              if jq -e --arg r "$repo" '.exclude[]? | select(.==$r)' /tmp/baseline.json >/dev/null; then
+                echo "skip   $repo (excluded)"; exit 0
+              fi
+
+              # Detect primary language for `files[].languages` filtering.
+              primary_lang=$(gh repo view "$owner/$repo" \
+                --json primaryLanguage --jq '.primaryLanguage.name // ""')
+
+              # Resolve the effective files list:
+              #   repo_overrides[$r].files                       -> full replace
+              #   defaults.files + repo_overrides[$r].files_add  -> extend
+              # Then filter by primary language (or apply if `languages` is absent).
+              files_json=$(jq -c --arg r "$repo" --arg lang "$primary_lang" '
+                ((.repo_overrides[$r].files //
+                  (.defaults.files + (.repo_overrides[$r].files_add // [])))
+                 | map(select(.languages == null or (.languages | index($lang)) != null)))
+              ' /tmp/baseline.json)
+
+              if [ "$(jq 'length' <<<"$files_json")" = "0" ]; then
+                echo "skip   $repo (no files apply)"; exit 0
+              fi
+
+              # Clone target and prepare the sync branch.
+              tmpdir=$(mktemp -d)
+              git clone --depth 1 \
+                "https://x-access-token:${GH_TOKEN}@github.com/${owner}/${repo}.git" \
+                "$tmpdir" >/dev/null 2>&1
+              cd "$tmpdir"
+              default_branch=$(git symbolic-ref --short HEAD)
+              branch="chore/baseline-sync"
+              git checkout -B "$branch"
+
+              # Render each template, substituting @<tag> with the upstream commit.
+              while IFS= read -r entry; do
+                src=$(jq -r '.src' <<<"$entry")
+                dst=$(jq -r '.dst' <<<"$entry")
+                create_only=$(jq -r '.create_only // false' <<<"$entry")
+
+                if [ "$create_only" = "true" ] && [ -f "$dst" ]; then
+                  continue
+                fi
+
+                mkdir -p "$(dirname "$dst")"
+                sed "s|@<tag>|@${UPSTREAM_REF}|g" "${workdir}/${src}" > "$dst"
+              done < <(jq -c '.[]' <<<"$files_json")
+
+              if [ -z "$(git status --porcelain)" ]; then
+                echo "noop   $repo"; exit 0
+              fi
+
+              git config user.email "baseline-bot@users.noreply.github.com"
+              git config user.name  "baseline-bot"
+              git add -A
+              git commit -m "chore: sync baseline files from gr1m0h/.github@${UPSTREAM_REF:0:7}"
+              git push -f origin "$branch" >/dev/null 2>&1
+
+              # Open the PR if it does not already exist; otherwise the force-push
+              # has already refreshed the existing one.
+              pr_url=$(gh pr list --repo "$owner/$repo" --head "$branch" \
+                --json url --jq '.[0].url // ""')
+              if [ -z "$pr_url" ]; then
+                gh pr create --repo "$owner/$repo" \
+                  --base "$default_branch" --head "$branch" \
+                  --title "chore: sync baseline files from gr1m0h/.github" \
+                  --body "Synced from gr1m0h/.github@${UPSTREAM_REF}. This PR is opened automatically by files-apply.yml; each upstream change force-pushes onto this branch, so review the latest diff before merging."
+                echo "create $repo"
+              else
+                echo "update $repo  $pr_url"
+              fi
+            ) || echo "FAIL   $repo (continuing)"
+          done

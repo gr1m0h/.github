@@ -27,15 +27,15 @@ jobs:
         run: |
           set -euo pipefail
           owner=gr1m0h
-          # security/baseline.yaml を JSON に変換 (Phase 1 では rulesets 関連のみ参照)
           yq -o=json security/baseline.yaml > /tmp/baseline.json
 
-          # scope を読み出し (省略時のデフォルト: public / 非 archived / 非 fork)
+          # Read scope (defaults: public / non-archived / non-fork).
           scope_vis=$(jq -r  '.scope.visibility // "public"' /tmp/baseline.json)
           scope_arc=$(jq -r  '.scope.archived   // false'    /tmp/baseline.json)
           scope_fork=$(jq -r '.scope.forks      // false'    /tmp/baseline.json)
 
-          # 対象 repo を列挙: repos: 配列があれば opt-in、 無ければ scope で gh から取得
+          # Enumerate targets: if `repos:` is set use it as the opt-in list,
+          # otherwise list every repo in the owner that matches scope.
           if jq -e '.repos' /tmp/baseline.json >/dev/null; then
             targets=$(jq -r '.repos[]' /tmp/baseline.json)
           else
@@ -48,14 +48,13 @@ jobs:
           fi
 
           for repo in $targets; do
-              # exclude
               if jq -e --arg r "$repo" '.exclude[]? | select(.==$r)' /tmp/baseline.json >/dev/null; then
                 echo "skip   $repo (excluded)"; continue
               fi
-              # rulesets を決める:
-              #   repo_overrides[$r].rulesets    → 完全置換
-              #   repo_overrides[$r].rulesets_add → defaults.rulesets に追加
-              #   どちらも無ければ                → defaults.rulesets
+              # Resolve the rulesets to apply:
+              #   repo_overrides[$r].rulesets       -> full replace
+              #   repo_overrides[$r].rulesets_add   -> extend defaults.rulesets
+              #   neither                           -> defaults.rulesets
               applies=$(jq -r --arg r "$repo" '
                 (.repo_overrides[$r].rulesets //
                  (.defaults.rulesets + (.repo_overrides[$r].rulesets_add // []))) | unique | .[]

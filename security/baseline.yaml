@@ -1,55 +1,56 @@
-# 対象 repo の宣言
-scope:
-  visibility: public # public | private | all
-  archived: false
-  forks: false
+# Single source of truth for what is applied to which repos.
+#
+# Read by:
+#   .github/workflows/rulesets-apply.yml  -> applies `rulesets` via the GitHub API
+#   .github/workflows/files-apply.yml     -> PRs `files` into target repos
 
+# -----------------------------------------------------------------------------
+# Repo selection
+# -----------------------------------------------------------------------------
+# If `repos:` is defined, only those repos are covered (opt-in list).
+# Otherwise every repo in the owner that matches `scope` is covered.
+scope:
+  visibility: public          # public | private | all
+  archived: false             # include archived repos
+  forks: false                # include forks
+
+# Repos that match `scope` but should be skipped entirely.
+exclude:
+  - gr1m0h                    # profile README repo
+  - hatenablog-contents       # content-only, no CI
+
+# -----------------------------------------------------------------------------
+# Defaults — applied to every covered repo unless overridden below.
+# -----------------------------------------------------------------------------
 defaults:
-  # ruleset
+  # Rulesets to apply. Each name must match security/rulesets/<name>.json.
   rulesets:
     - main-protection
-  # repo settings
-  repo_settings:
-    private_vulnerability_reporting: true
-    vulnerability_alerts: true
-    secret_scanning: enabled
-    secret_scanning_push_protection: enabled
-    dependabot_security_updates: enabled
-  # target repo に PR で配置する file
+
+  # Files to PR into the target repo.
+  #
+  # Fields:
+  #   src         (required) path inside this repo (template, may contain @<tag>)
+  #   dst         (required) path inside the target repo
+  #   languages   (optional) only apply if target's primary language is in this list
+  #   create_only (optional) skip if the file already exists in the target
   files:
-    - { src: templates/dependabot.yml, dst: .github/dependabot.yml }
-    - { src: templates/CODEOWNERS, dst: CODEOWNERS, create_only: true }
-  # caller workflow (言語別に template を選択)
-  caller_workflow:
-    src: templates/caller-security-multi.yml
-    dst: .github/workflows/security.yml
+    - src: templates/caller-go.yml.template
+      dst: .github/workflows/security.yml
+      languages: [Go]
+    - src: templates/caller-node.yml.template
+      dst: .github/workflows/security.yml
+      languages: [TypeScript, JavaScript]
 
-# 言語別追加
-language_overrides:
-  Go:
-    caller_workflow:
-      src: templates/caller-security-go.yml
-  TypeScript:
-    caller_workflow:
-      src: templates/caller-security-node.yml
-  JavaScript:
-    caller_workflow:
-      src: templates/caller-security-node.yml
-
-# scope で拾われた中で、 baseline を当てない repo
-exclude:
-  - gr1m0h
-  - hatenablog-contents
-
-# repo 固有 (defaults → language → override の merge 順)
+# -----------------------------------------------------------------------------
+# Per-repo overrides — merged on top of `defaults`.
+#
+# Use the bare key (e.g. `rulesets:`) to fully replace the default list, or
+# the `_add` suffix (e.g. `rulesets_add:`, `files_add:`) to extend it.
+# -----------------------------------------------------------------------------
 repo_overrides:
   vimpin:
     rulesets: [main-protection, tag-protection]
-    files_add:
-      - {
-          src: templates/cosign-release.yml,
-          dst: .github/workflows/cosign-release.yml,
-        }
   vimpin-action:
     rulesets: [main-protection, tag-protection]
   vimpin-renovate-config:
