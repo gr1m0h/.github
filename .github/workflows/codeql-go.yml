@@ -26,11 +26,11 @@ jobs:
         with:
           go-version: ${{ inputs.go-version }}
           cache: true
-      - uses: github/codeql-action/init@d05fceb0450a68babd9a7597626abef20f03dad6 # v2.25.5
+      - uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
-      - uses: github/codeql-action/autobuild@d05fceb0450a68babd9a7597626abef20f03dad6 # v2.25.5
-      - uses: github/codeql-action/analyze@d05fceb0450a68babd9a7597626abef20f03dad6 # v2.25.5
+      - uses: github/codeql-action/autobuild@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+      - uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
         with:
           category: "/language:${{ matrix.language }}"
