@@ -75,6 +75,13 @@ defaults:
     - src: templates/caller-hcl.yml.template
       dst: .github/workflows/security.yml
       languages: [HCL]
+    # CODEOWNERS is NOT inherited from the org-level gr1m0h/.github repo, so a
+    # concrete copy has to be distributed into each target repo to centralize
+    # reviewer auto-assignment without GitHub Actions. No `languages` filter:
+    # reviewer assignment is language-agnostic and should reach every covered
+    # repo (asdf-* shell plugins and the rest of the files_apply allowlist).
+    - src: templates/CODEOWNERS.template
+      dst: CODEOWNERS
 
 # -----------------------------------------------------------------------------
 # Per-repo overrides — merged on top of `defaults`.
