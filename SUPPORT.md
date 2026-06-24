@@ -1,19 +1,24 @@
 # Support
 
-`gr1m0h` 配下のプロジェクトを使ってくださりありがとうございます。
-このファイルは org の `.github` から各リポジトリに継承される共通の窓口案内です。
+Thanks for using a project under `gr1m0h`. This file is inherited from the org
+`.github` repository and provides a common starting point for getting help
+across all repositories.
 
-## 質問・困りごと
+## Questions and problems
 
-- **使い方の質問 / アイデア相談** — 対象リポジトリの **GitHub Discussions**（有効な場合）、なければ **Issue** を起票してください。
-- **バグ報告 / 機能要望** — 対象リポジトリの **Issues** から、用意されているテンプレートに沿って起票してください。再現手順・期待した挙動・実際の挙動・バージョンを含めてもらえると解決が早まります。
+- **How-to questions / ideas** — use the repository's **GitHub Discussions** (if enabled), otherwise open an **Issue**.
+- **Bug reports / feature requests** — open an **Issue** using the provided templates. Including reproduction steps, expected vs. actual behavior, and the version you're on helps a lot.
 
-起票の前に、既存の Open / Closed Issue を一度検索してみてください。同じ話題が見つかることがあります。
+Before opening an issue, please search existing open and closed issues — the
+topic may already be covered.
 
-## セキュリティ
+## Security
 
-脆弱性は **公開 Issue に書かないでください**。報告手順は各リポジトリ（または org）の [`SECURITY.md`](./SECURITY.md) に従ってください。
+Please **do not report vulnerabilities in public issues**. Follow the reporting
+process in the repository's (or org's) [`SECURITY.md`](./SECURITY.md).
 
-## サポート方針
+## Support policy
 
-これらは個人がメンテナンスする OSS プロジェクトです。対応はベストエフォートで、応答や修正を保証するものではありません。Pull Request は歓迎します — まず Issue で方針をすり合わせてからの提案だとスムーズです。
+These are open-source projects maintained by an individual on a best-effort
+basis; responses and fixes are not guaranteed. Pull requests are welcome —
+opening an issue first to align on direction makes the process smoother.
