@@ -5,7 +5,8 @@
 - **Rulesets** — `security/rulesets/*.json` を `rulesets-apply.yml` が GitHub API で適用
 - **Reusable workflows** — `.github/workflows/*.yml`（`workflow_call`）
 - **Caller templates** — `templates/caller-*.yml.template` を `files-apply.yml` が対象 repo に PR
-- **Community health files** — root の `SECURITY.md` / `CODEOWNERS` / `FUNDING.yml` 等は自動継承
+- **CODEOWNERS** — org の `.github` からは継承されないため、`templates/CODEOWNERS.template` を `files-apply.yml` が各 repo に実体として配布（reviewer 自動アサインの中央集約、GitHub Actions 不要）
+- **Community health files** — root の `SECURITY.md` / `FUNDING.yml` 等は自動継承
 
 ```
 .
