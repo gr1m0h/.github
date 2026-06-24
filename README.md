@@ -31,7 +31,7 @@
 | Workflow | Trigger | 動作 |
 |----------|---------|------|
 | `rulesets-apply.yml` | `security/baseline.yaml`, `security/rulesets/**` への push / 手動 | GitHub App トークンで ruleset を PUT/POST |
-| `files-apply.yml` | `security/baseline.yaml`, `templates/**` への push / 手動 | `chore/baseline-sync` ブランチに force-push して PR |
+| `files-apply.yml` | `security/baseline.yaml`, `templates/**` への push / 手動 | `chore/baseline-sync` ブランチに commit を追記（force-push しない）して PR |
 
 App に必要な権限:
 - rulesets-apply: `Administration: write`, `Contents: read`, `Metadata: read`
