@@ -45,6 +45,7 @@ files_apply:
     - terraform-aws-cloudwatch-dashboard-for-loadtesting
     - vimpin
     - vimpin-action
+    - vimpin-docs
     - vimpin-renovate-config
 
 # -----------------------------------------------------------------------------
