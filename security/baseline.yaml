@@ -45,6 +45,7 @@ files_apply:
     - terraform-aws-cloudwatch-dashboard-for-loadtesting
     - vimpin
     - vimpin-action
+    - vimpin-docs
     - vimpin-renovate-config
     - ichiza
     - ichiza-starter
@@ -77,6 +78,8 @@ defaults:
     - src: templates/caller-hcl.yml.template
       dst: .github/workflows/security.yml
       languages: [HCL]
+    - src: templates/CODEOWNERS.template
+      dst: CODEOWNERS
 
 # -----------------------------------------------------------------------------
 # Per-repo overrides — merged on top of `defaults`.

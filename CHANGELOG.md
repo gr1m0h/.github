@@ -1,5 +1,15 @@
 # Changelog
 
+## [v1.1.7](https://github.com/gr1m0h/.github/compare/v1.1.6...v1.1.7) - 2026-06-24
+
+- fix: track go.mod toolchain in reusable Go workflows, fix osv-scan checkout, fill SUPPORT.md by @gr1m0h in https://github.com/gr1m0h/.github/pull/20
+- chore(baseline): cover vimpin-docs; gate node npm-audit on critical by @gr1m0h in https://github.com/gr1m0h/.github/pull/22
+
+## [v1.1.6](https://github.com/gr1m0h/.github/compare/v1.1.5...v1.1.6) - 2026-06-24
+
+- Distribute CODEOWNERS via files-apply to centralize reviewer assignment by @gr1m0h in https://github.com/gr1m0h/.github/pull/19
+- chore(deps): bump cicd-sensor/cicd-sensor-action from 0.0.31 to 0.0.33 in the actions-minor-patch group by @dependabot[bot] in https://github.com/gr1m0h/.github/pull/17
+
 ## [v1.1.5](https://github.com/gr1m0h/.github/compare/v1.1.4...v1.1.5) - 2026-06-10
 
 - refactor(files-apply): accumulate commits on chore/baseline-sync instead of force-pushing by @gr1m0h in https://github.com/gr1m0h/.github/pull/15
