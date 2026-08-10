@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.1.9](https://github.com/gr1m0h/.github/compare/v1.1.8...v1.1.9) - 2026-08-10
+
+- feat(security): add Renovate auto-merge baseline by @gr1m0h in https://github.com/gr1m0h/.github/pull/29
+
 ## [v1.1.8](https://github.com/gr1m0h/.github/compare/v1.1.7...v1.1.8) - 2026-08-10
 
 - feat: add reusable release-go workflow (tagpr + goreleaser) by @gr1m0h in https://github.com/gr1m0h/.github/pull/28
