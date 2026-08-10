@@ -10,15 +10,15 @@
 # If `repos:` is defined, only those repos are covered (opt-in list).
 # Otherwise every repo in the owner that matches `scope` is covered.
 scope:
-  visibility: public          # public | private | all
-  archived: false             # include archived repos
-  forks: false                # include forks
+  visibility: public # public | private | all
+  archived: false # include archived repos
+  forks: false # include forks
 
 # Repos that match `scope` but should be skipped entirely.
 # Applied to BOTH rulesets-apply and files-apply (hard never-touch list).
 exclude:
-  - gr1m0h                    # profile README repo
-  - hatenablog-contents       # content-only, no CI
+  - gr1m0h # profile README repo
+  - hatenablog-contents # content-only, no CI
 
 # -----------------------------------------------------------------------------
 # files-apply narrower scope (subset of rulesets coverage).
@@ -47,6 +47,10 @@ files_apply:
     - vimpin-action
     - vimpin-docs
     - vimpin-renovate-config
+    - ichiza
+    - ichiza-starter
+    - ichiza-docs
+    - mdv
 
 # -----------------------------------------------------------------------------
 # Defaults — applied to every covered repo unless overridden below.
@@ -91,4 +95,10 @@ repo_overrides:
   vimpin-action:
     rulesets: [main-protection, tag-protection]
   vimpin-renovate-config:
+    rulesets: [main-protection, tag-protection]
+  ichiza:
+    rulesets: [main-protection, tag-protection]
+  ichiza-starter:
+    rulesets: [main-protection, tag-protection]
+  mdv:
     rulesets: [main-protection, tag-protection]
