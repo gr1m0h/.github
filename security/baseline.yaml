@@ -57,8 +57,15 @@ files_apply:
 # -----------------------------------------------------------------------------
 defaults:
   # Rulesets to apply. Each name must match security/rulesets/<name>.json.
+  #
+  # `main-protection` keeps 0 required approvals (PR + required checks only),
+  # so it never blocks Renovate auto-merge. `require-review` layers the
+  # 1-approval rule back on top and is the default, so human-driven repos
+  # still need a review. Renovate-managed repos (files_apply.repos) drop
+  # `require-review` in their overrides below to allow unattended merges.
   rulesets:
     - main-protection
+    - require-review
 
   # Files to PR into the target repo.
   #
@@ -82,6 +89,12 @@ defaults:
       languages: [HCL]
     - src: templates/CODEOWNERS.template
       dst: CODEOWNERS
+    # Renovate config. `.github` is not in files_apply.repos, so it keeps its
+    # own .github/dependabot.yml; every repo covered here gets Renovate with
+    # minor/patch auto-merge instead. Language-agnostic (Renovate auto-detects
+    # managers), so no `languages` filter.
+    - src: templates/renovate.json.template
+      dst: renovate.json
 
 # -----------------------------------------------------------------------------
 # Per-repo overrides — merged on top of `defaults`.
@@ -102,3 +115,25 @@ repo_overrides:
     rulesets: [main-protection, tag-protection]
   mdv:
     rulesets: [main-protection, tag-protection]
+  # Renovate-managed repos without tag protection. They drop `require-review`
+  # (0 approvals) so minor/patch updates auto-merge once checks pass.
+  asdf-act:
+    rulesets: [main-protection]
+  asdf-k6:
+    rulesets: [main-protection]
+  asdf-soracom:
+    rulesets: [main-protection]
+  asdf-starship:
+    rulesets: [main-protection]
+  asdf-terraformer:
+    rulesets: [main-protection]
+  asdf-vegeta:
+    rulesets: [main-protection]
+  k6-ec2:
+    rulesets: [main-protection]
+  terraform-aws-cloudwatch-dashboard-for-loadtesting:
+    rulesets: [main-protection]
+  vimpin-docs:
+    rulesets: [main-protection]
+  ichiza-docs:
+    rulesets: [main-protection]
