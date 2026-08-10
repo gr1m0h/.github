@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.1.8](https://github.com/gr1m0h/.github/compare/v1.1.7...v1.1.8) - 2026-08-10
+
+- feat: add reusable release-go workflow (tagpr + goreleaser) by @gr1m0h in https://github.com/gr1m0h/.github/pull/28
+- chore(deps): bump the actions-minor-patch group across 1 directory with 5 updates by @dependabot[bot] in https://github.com/gr1m0h/.github/pull/26
+- chore(deps): bump actions/checkout from 6.0.3 to 7.0.0 by @dependabot[bot] in https://github.com/gr1m0h/.github/pull/24
+
 ## [v1.1.7](https://github.com/gr1m0h/.github/compare/v1.1.6...v1.1.7) - 2026-06-24
 
 - fix: track go.mod toolchain in reusable Go workflows, fix osv-scan checkout, fill SUPPORT.md by @gr1m0h in https://github.com/gr1m0h/.github/pull/20
