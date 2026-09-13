@@ -51,6 +51,7 @@ files_apply:
     - ichiza-starter
     - ichiza-docs
     - mdv
+    - agent-config
 
 # -----------------------------------------------------------------------------
 # Defaults — applied to every covered repo unless overridden below.
@@ -114,6 +115,8 @@ repo_overrides:
   ichiza-starter:
     rulesets: [main-protection, tag-protection]
   mdv:
+    rulesets: [main-protection, tag-protection]
+  agent-config:
     rulesets: [main-protection, tag-protection]
   # Renovate-managed repos without tag protection. They drop `require-review`
   # (0 approvals) so minor/patch updates auto-merge once checks pass.
