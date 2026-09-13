@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.1.10](https://github.com/gr1m0h/.github/compare/v1.1.9...v1.1.10) - 2026-09-13
+
+- chore(deps): bump actions/checkout from 6.0.3 to 7.0.1 by @dependabot[bot] in https://github.com/gr1m0h/.github/pull/34
+- chore(deps): bump the actions-minor-patch group across 1 directory with 7 updates by @dependabot[bot] in https://github.com/gr1m0h/.github/pull/35
+- chore(deps): bump actions/setup-node from 6.4.0 to 7.0.0 by @dependabot[bot] in https://github.com/gr1m0h/.github/pull/33
+- Update baseline.yaml by @gr1m0h in https://github.com/gr1m0h/.github/pull/37
+- chore(deps): bump actions/setup-go from 6.4.0 to 7.0.0 by @dependabot[bot] in https://github.com/gr1m0h/.github/pull/32
+
 ## [v1.1.9](https://github.com/gr1m0h/.github/compare/v1.1.8...v1.1.9) - 2026-08-10
 
 - feat(security): add Renovate auto-merge baseline by @gr1m0h in https://github.com/gr1m0h/.github/pull/29
