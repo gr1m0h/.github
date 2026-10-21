@@ -5,7 +5,7 @@ on:
     inputs:
       node-version:
         type: string
-        default: "20"
+        default: "24"
       audit-level:
         description: low | moderate | high | critical
         type: string
@@ -13,7 +13,7 @@ on:
       omit:
         description: dependency groups to skip (e.g. "dev")
         type: string
-        default: dev
+        default: ""
 
 permissions:
   contents: read
@@ -28,4 +28,10 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
       - name: npm audit
-        run: npm audit --audit-level=${{ inputs.audit-level }} --omit=${{ inputs.omit }}
+        env:
+          AUDIT_LEVEL: ${{ inputs.audit-level }}
+          OMIT: ${{ inputs.omit }}
+        run: |
+          args=(--package-lock-only --ignore-scripts "--audit-level=$AUDIT_LEVEL")
+          if [ -n "$OMIT" ]; then args+=("--omit=$OMIT"); fi
+          npm audit "${args[@]}"
