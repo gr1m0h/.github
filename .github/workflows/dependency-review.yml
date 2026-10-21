@@ -14,7 +14,7 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
+  pull-requests: read
 
 jobs:
   dependency-review:
@@ -26,4 +26,4 @@ jobs:
         with:
           fail-on-severity: ${{ inputs.fail-on-severity }}
           deny-licenses: ${{ inputs.deny-licenses }}
-          comment-summary-in-pr: on-failure
+          comment-summary-in-pr: never

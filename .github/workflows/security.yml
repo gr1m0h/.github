@@ -16,11 +16,14 @@ jobs:
       security-events: write
   gitleaks:
     uses: ./.github/workflows/gitleaks.yml
+    permissions:
+      contents: read
+      pull-requests: read
   dependency-review:
     if: github.event_name == 'pull_request'
     uses: ./.github/workflows/dependency-review.yml
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: read
   actionlint:
     uses: ./.github/workflows/actions-pin-lint.yml
