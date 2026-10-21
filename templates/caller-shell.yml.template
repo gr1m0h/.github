@@ -20,7 +20,7 @@ jobs:
       contents: read
       pull-requests: read
   dependency-review:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.event.repository.private == false
     uses: gr1m0h/.github/.github/workflows/dependency-review.yml@<tag>
     permissions:
       contents: read
