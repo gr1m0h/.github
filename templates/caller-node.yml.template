@@ -1,6 +1,8 @@
 # <target-repo>/.github/workflows/security.yml
 name: security
 on:
+  schedule:
+    - cron: '23 3 * * 1'
   pull_request:
   workflow_dispatch:
 permissions:
@@ -22,12 +24,15 @@ jobs:
       security-events: write
   gitleaks:
     uses: gr1m0h/.github/.github/workflows/gitleaks.yml@<tag>
+    permissions:
+      contents: read
+      pull-requests: read
   dependency-review:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.event.repository.private == false
     uses: gr1m0h/.github/.github/workflows/dependency-review.yml@<tag>
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: read
   codeql:
     uses: gr1m0h/.github/.github/workflows/codeql-typescript.yml@<tag>
     permissions:

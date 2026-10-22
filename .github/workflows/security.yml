@@ -1,0 +1,29 @@
+# <target-repo>/.github/workflows/security.yml
+name: security
+on:
+  schedule:
+    - cron: '23 3 * * 1'
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  osv-scan:
+    uses: ./.github/workflows/osv-scanner.yml
+    permissions:
+      contents: read
+      security-events: write
+  gitleaks:
+    uses: ./.github/workflows/gitleaks.yml
+    permissions:
+      contents: read
+      pull-requests: read
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/dependency-review.yml
+    permissions:
+      contents: read
+      pull-requests: read
+  actionlint:
+    uses: ./.github/workflows/actions-pin-lint.yml
