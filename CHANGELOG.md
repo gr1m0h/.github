@@ -1,5 +1,10 @@
 # Changelog
 
+## [v1.1.11](https://github.com/gr1m0h/.github/compare/v1.1.10...v1.1.11) - 2026-10-22
+
+- fix(security): update scanners and audit build dependencies by @gr1m0h in https://github.com/gr1m0h/.github/pull/42
+- ci(security): run security checks only on pull requests by @gr1m0h in https://github.com/gr1m0h/.github/pull/44
+
 ## [v1.1.10](https://github.com/gr1m0h/.github/compare/v1.1.9...v1.1.10) - 2026-09-13
 
 - chore(deps): bump actions/checkout from 6.0.3 to 7.0.1 by @dependabot[bot] in https://github.com/gr1m0h/.github/pull/34
